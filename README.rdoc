@@ -1,28 +1,35 @@
-== README
+Steps to download as CSV
+==========================
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Ruby has csv handling libraries so just call
 
-Things you may want to cover:
+require 'csv'- in config/application.erb
 
-* Ruby version
+in controller
+--------------
 
-* System dependencies
+respond_to do |format|
+      format.html
+      format.csv{ render text: @products.to_csv}
+      format.xls{ render text: @products.to_csv(col_sep: "\t")}
+    end
+----------------
+this converts the html to both csv and xls
 
-* Configuration
+in model
+---------------
+def self.to_csv(options={})
+		CSV.generate(options) do |csv|
+			csv << column_names
+			all.each do |product|
+				csv << product.attributes.values_at(*column_names)
+			end
+		end
+	end
+	-----------------
 
-* Database creation
+	and in your index page just at browser address bar just add .csv or .xls the file gets downloaded
+	if you want to add link in page then 
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
-
-
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+	<%= link_to "CSV", products_path(format: "csv") %>
+	<%= link_to "xls", products_path(format: "xls") %>
